@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="customer_support.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2937"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="raw_customer_support" custom_title="0" dock_id="3" table="4,20:mainraw_customer_support"/><dock_state state="000000ff00000000fd0000000100000002000005cc0000038cfc0100000003fb000000160064006f0063006b00420072006f00770073006500310100000000ffffffff0000000000000000fb000000160064006f0063006b00420072006f00770073006500320100000000ffffffff0000000000000000fb000000160064006f0063006b00420072006f00770073006500330100000000000005cc0000015c00ffffff000005cc0000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="raw_customer_support" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="288"/><column index="2" value="89"/><column index="3" value="148"/><column index="4" value="257"/><column index="5" value="300"/><column index="6" value="288"/><column index="7" value="132"/><column index="8" value="132"/><column index="9" value="132"/><column index="10" value="134"/><column index="11" value="156"/><column index="12" value="218"/><column index="13" value="70"/><column index="14" value="153"/><column index="15" value="179"/><column index="16" value="132"/><column index="17" value="124"/><column index="18" value="124"/><column index="19" value="78"/><column index="20" value="68"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1">SELECT * FROM raw_customer_support LIMIT 10;
+SELECT COUNT (*) FROM raw_customer_support;
+SELECT
+    COUNT(*) AS total_filas,
+    COUNT(*) - COUNT(customer_remarks)      AS nulos_remarks,
+    COUNT(*) - COUNT(order_date_time)       AS nulos_order_date,
+    COUNT(*) - COUNT(customer_city)         AS nulos_city,
+    COUNT(*) - COUNT(product_category)      AS nulos_product_cat,
+    COUNT(*) - COUNT(item_price)            AS nulos_item_price,
+    COUNT(*) - COUNT(connected_handling_time) AS nulos_handling_time
+FROM raw_customer_support;
+SELECT
+    channel_name,
+    COUNT(*) AS total,
+    COUNT(*) - COUNT(order_date_time) AS nulos_order_date
+FROM raw_customer_support
+GROUP BY channel_name
+ORDER BY total DESC;
+SELECT
+    category,
+    COUNT(*) AS total,
+    COUNT(*) - COUNT(order_date_time) AS nulos_order_date
+FROM raw_customer_support
+GROUP BY category
+ORDER BY total DESC;
+SELECT
+    unique_id,
+    COUNT(*) AS veces
+FROM raw_customer_support
+GROUP BY unique_id
+HAVING COUNT(*) &gt; 1;
+SELECT DISTINCT channel_name FROM raw_customer_support;
+SELECT DISTINCT category FROM raw_customer_support;
+SELECT
+    MIN(item_price) AS precio_minimo,
+    MAX(item_price) AS precio_maximo,
+    AVG(item_price) AS precio_promedio,
+    COUNT(*) AS filas_con_precio
+FROM raw_customer_support
+WHERE item_price IS NOT NULL;
+SELECT COUNT(*) AS filas_precio_cero
+FROM raw_customer_support
+WHERE item_price = 0;
+SELECT
+    category,
+    COUNT(*) AS filas_precio_cero
+FROM raw_customer_support
+WHERE item_price = 0
+GROUP BY category
+ORDER BY filas_precio_cero DESC;
+SELECT unique_id, category, sub_category, item_price
+FROM raw_customer_support
+WHERE item_price IS NOT NULL
+ORDER BY item_price DESC
+LIMIT 20;
+
+SELECT
+    LENGTH(issue_reported_at) AS longitud,
+    COUNT(*) AS cuantas
+FROM raw_customer_support
+GROUP BY longitud;
+
+SELECT LENGTH(issue_responded) AS longitud, COUNT(*) AS cuantas
+FROM raw_customer_support
+GROUP BY longitud;
+
+SELECT LENGTH(survey_response_date) AS longitud, COUNT(*) AS cuantas
+FROM raw_customer_support
+GROUP BY longitud;
+
+SELECT
+    issue_reported_at,
+    SUBSTR(issue_reported_at, 7, 4) || '-' ||
+    SUBSTR(issue_reported_at, 4, 2) || '-' ||
+    SUBSTR(issue_reported_at, 1, 2) || ' ' ||
+    SUBSTR(issue_reported_at, 12, 5) AS fecha_reconstruida
+FROM raw_customer_support
+LIMIT 10;
+
+SELECT COUNT(*) AS filas_confirman_formato_dia_mes
+FROM raw_customer_support
+WHERE CAST(SUBSTR(issue_reported_at, 1, 2) AS INTEGER) &gt; 12;
+
+SELECT
+    COUNT(*) AS total_filas,
+    COUNT(datetime(
+        SUBSTR(issue_reported_at, 7, 4) || '-' ||
+        SUBSTR(issue_reported_at, 4, 2) || '-' ||
+        SUBSTR(issue_reported_at, 1, 2) || ' ' ||
+        SUBSTR(issue_reported_at, 12, 5)
+    )) AS filas_fecha_valida
+FROM raw_customer_support;
+
+SELECT
+    survey_response_date,
+    '20' || SUBSTR(survey_response_date, 8, 2) || '-' ||
+    CASE SUBSTR(survey_response_date, 4, 3)
+        WHEN 'Jan' THEN '01'
+        WHEN 'Feb' THEN '02'
+        WHEN 'Mar' THEN '03'
+        WHEN 'Apr' THEN '04'
+        WHEN 'May' THEN '05'
+        WHEN 'Jun' THEN '06'
+        WHEN 'Jul' THEN '07'
+        WHEN 'Aug' THEN '08'
+        WHEN 'Sep' THEN '09'
+        WHEN 'Oct' THEN '10'
+        WHEN 'Nov' THEN '11'
+        WHEN 'Dec' THEN '12'
+    END || '-' ||
+    SUBSTR(survey_response_date, 1, 2) AS fecha_reconstruida
+FROM raw_customer_support
+LIMIT 10;
+
+SELECT
+    COUNT(*) AS total_filas,
+    COUNT(datetime(
+        '20' || SUBSTR(survey_response_date, 8, 2) || '-' ||
+        CASE SUBSTR(survey_response_date, 4, 3)
+            WHEN 'Jan' THEN '01'
+            WHEN 'Feb' THEN '02'
+            WHEN 'Mar' THEN '03'
+            WHEN 'Apr' THEN '04'
+            WHEN 'May' THEN '05'
+            WHEN 'Jun' THEN '06'
+            WHEN 'Jul' THEN '07'
+            WHEN 'Aug' THEN '08'
+            WHEN 'Sep' THEN '09'
+            WHEN 'Oct' THEN '10'
+            WHEN 'Nov' THEN '11'
+            WHEN 'Dec' THEN '12'
+        END || '-' ||
+        SUBSTR(survey_response_date, 1, 2)
+    )) AS filas_fecha_valida
+FROM raw_customer_support;
+
+CREATE TABLE clean_customer_support AS
+SELECT
+    unique_id,
+    channel_name,
+    category,
+    sub_category,
+    customer_remarks,
+    order_id,
+    CASE WHEN order_date_time IS NOT NULL THEN
+        SUBSTR(order_date_time,7,4) || '-' || SUBSTR(order_date_time,4,2) || '-' ||
+        SUBSTR(order_date_time,1,2) || ' ' || SUBSTR(order_date_time,12,5)
+    ELSE NULL END AS order_date_time,
+    SUBSTR(issue_reported_at,7,4) || '-' || SUBSTR(issue_reported_at,4,2) || '-' ||
+        SUBSTR(issue_reported_at,1,2) || ' ' || SUBSTR(issue_reported_at,12,5) AS issue_reported_at,
+    SUBSTR(issue_responded,7,4) || '-' || SUBSTR(issue_responded,4,2) || '-' ||
+        SUBSTR(issue_responded,1,2) || ' ' || SUBSTR(issue_responded,12,5) AS issue_responded,
+    '20' || SUBSTR(survey_response_date,8,2) || '-' ||
+        CASE SUBSTR(survey_response_date,4,3)
+            WHEN 'Jan' THEN '01' WHEN 'Feb' THEN '02' WHEN 'Mar' THEN '03'
+            WHEN 'Apr' THEN '04' WHEN 'May' THEN '05' WHEN 'Jun' THEN '06'
+            WHEN 'Jul' THEN '07' WHEN 'Aug' THEN '08' WHEN 'Sep' THEN '09'
+            WHEN 'Oct' THEN '10' WHEN 'Nov' THEN '11' WHEN 'Dec' THEN '12'
+        END || '-' || SUBSTR(survey_response_date,1,2) AS survey_response_date,
+    customer_city,
+    product_category,
+    item_price,
+    connected_handling_time,
+    agent_name,
+    supervisor,
+    manager,
+    tenure_bucket,
+    agent_shift,
+    csat_score
+FROM raw_customer_support;
+
+SELECT COUNT(*) FROM clean_customer_support;
+
+DROP TABLE IF EXISTS clean_customer_support;
+
+SELECT COUNT(*) FROM clean_customer_support;
+
+SELECT unique_id, order_date_time, issue_reported_at, issue_responded, survey_response_date
+FROM clean_customer_support
+LIMIT 10;
+
+SELECT COUNT(*) FROM clean_customer_support;
+
+SELECT unique_id, order_date_time, issue_reported_at, issue_responded, survey_response_date
+FROM clean_customer_support
+LIMIT 10;</sql><sql name="SQL 2">SELECT unique_id, order_date_time, issue_reported_at, issue_responded, survey_response_date
+FROM clean_customer_support
+LIMIT 10;</sql><sql name="SQL 3*">SELECT DISTINCT category FROM raw_customer_support;
+
+SELECT
+    category,
+    CASE category
+        WHEN 'Payments related' THEN 'Payments Related'
+        WHEN 'Onboarding related' THEN 'Onboarding Related'
+        ELSE category
+    END AS category_clean
+FROM raw_customer_support
+WHERE category IN ('Payments related', 'Onboarding related')
+LIMIT 10;
+
+SELECT COUNT(*) FROM clean_customer_support
+WHERE category IN ('Payments related', 'Onboarding related');
+
+UPDATE clean_customer_support
+SET category = CASE category
+    WHEN 'Payments related' THEN 'Payments Related'
+    WHEN 'Onboarding related' THEN 'Onboarding Related'
+    ELSE category
+END;
+
+SELECT category, COUNT(*) FROM clean_customer_support
+GROUP BY category
+ORDER BY category;
+
+SELECT COUNT(DISTINCT customer_city) AS ciudades_unicas
+FROM raw_customer_support;
+
+SELECT
+    COUNT(DISTINCT customer_city) AS ciudades_sin_normalizar,
+    COUNT(DISTINCT TRIM(UPPER(customer_city))) AS ciudades_normalizadas
+FROM raw_customer_support;
+
+SELECT customer_city, COUNT(*) AS veces
+FROM raw_customer_support
+WHERE customer_city IS NOT NULL
+GROUP BY customer_city
+HAVING COUNT(*) = 1
+ORDER BY customer_city
+LIMIT 30;
+
+SELECT COUNT(*) AS ciudades_que_aparecen_una_vez
+FROM (
+    SELECT customer_city
+    FROM raw_customer_support
+    WHERE customer_city IS NOT NULL
+    GROUP BY customer_city
+    HAVING COUNT(*) = 1
+);
+
+SELECT COUNT(*) AS filas_con_espacios_de_mas
+FROM raw_customer_support
+WHERE customer_remarks IS NOT NULL
+  AND LENGTH(customer_remarks) != LENGTH(TRIM(customer_remarks));
+  
+SELECT
+    '[' || customer_remarks || ']' AS remarks_con_corchetes
+FROM raw_customer_support
+WHERE customer_remarks IS NOT NULL
+  AND LENGTH(customer_remarks) != LENGTH(TRIM(customer_remarks))
+LIMIT 10;
+
+SELECT COUNT(*) FROM clean_customer_support
+WHERE customer_remarks IS NOT NULL
+  AND LENGTH(customer_remarks) != LENGTH(TRIM(customer_remarks));
+  
+UPDATE clean_customer_support
+SET customer_remarks = TRIM(customer_remarks)
+WHERE customer_remarks IS NOT NULL;
+
+SELECT COUNT(*) FROM clean_customer_support
+WHERE customer_remarks IS NOT NULL
+  AND LENGTH(customer_remarks) != LENGTH(TRIM(customer_remarks));
+  
+SELECT
+    COUNT(DISTINCT agent_name) AS agentes,
+    COUNT(DISTINCT supervisor) AS supervisores,
+    COUNT(DISTINCT manager) AS gerentes,
+    COUNT(DISTINCT sub_category) AS subcategorias,
+    COUNT(DISTINCT product_category) AS categorias_producto
+FROM raw_customer_support;
+
+SELECT
+    COUNT(DISTINCT agent_name) AS agentes,
+    COUNT(DISTINCT TRIM(UPPER(agent_name))) AS agentes_norm,
+    COUNT(DISTINCT supervisor) AS supervisores,
+    COUNT(DISTINCT TRIM(UPPER(supervisor))) AS supervisores_norm,
+    COUNT(DISTINCT manager) AS gerentes,
+    COUNT(DISTINCT TRIM(UPPER(manager))) AS gerentes_norm,
+    COUNT(DISTINCT sub_category) AS subcategorias,
+    COUNT(DISTINCT TRIM(UPPER(sub_category))) AS subcategorias_norm,
+    COUNT(DISTINCT product_category) AS categorias_producto,
+    COUNT(DISTINCT TRIM(UPPER(product_category))) AS categorias_producto_norm
+FROM raw_customer_support;
+
+SELECT
+    SUM(CASE WHEN agent_name IS NOT NULL AND LENGTH(agent_name) != LENGTH(TRIM(agent_name)) THEN 1 ELSE 0 END) AS agent_name_espacios,
+    SUM(CASE WHEN supervisor IS NOT NULL AND LENGTH(supervisor) != LENGTH(TRIM(supervisor)) THEN 1 ELSE 0 END) AS supervisor_espacios,
+    SUM(CASE WHEN manager IS NOT NULL AND LENGTH(manager) != LENGTH(TRIM(manager)) THEN 1 ELSE 0 END) AS manager_espacios,
+    SUM(CASE WHEN sub_category IS NOT NULL AND LENGTH(sub_category) != LENGTH(TRIM(sub_category)) THEN 1 ELSE 0 END) AS sub_category_espacios,
+    SUM(CASE WHEN product_category IS NOT NULL AND LENGTH(product_category) != LENGTH(TRIM(product_category)) THEN 1 ELSE 0 END) AS product_category_espacios
+FROM raw_customer_support;
+
+SELECT DISTINCT manager FROM raw_customer_support;
+
+SELECT DISTINCT product_category FROM raw_customer_support;
+
+SELECT COUNT(*) FROM clean_customer_support
+WHERE product_category = 'Home Appliences';
+
+UPDATE clean_customer_support
+SET product_category = 'Home Appliances'
+WHERE product_category = 'Home Appliences';
+
+SELECT DISTINCT product_category FROM clean_customer_support;</sql><current_tab id="2"/></tab_sql></sqlb_project>
