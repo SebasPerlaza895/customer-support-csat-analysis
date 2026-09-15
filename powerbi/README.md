@@ -35,10 +35,14 @@ DIVIDE(
     CALCULATE(COUNTROWS(clean_customer_support), clean_customer_support[csat_score] <= 2),
     [Total Interacciones]
 )
-
-Tiempo Gestion Promedio (seg) =
-AVERAGE(clean_customer_support[connected_handling_time])
 ```
+
+> **Nota sobre `connected_handling_time`**: esta columna viene vacía en el
+> 99.7% de las filas (solo 242 de 85,907 tienen valor, sin concentrarse en
+> ningún canal o categoría en particular). No hay suficiente cobertura para
+> usarla como KPI — un promedio ahí sería engañoso. Por eso no se incluye
+> en el dashboard; si Power Query te la muestra en blanco al convertirla a
+> Número, es el comportamiento correcto, no un error de conversión.
 
 ## 3. Página 1 — Overview
 
@@ -46,7 +50,7 @@ AVERAGE(clean_customer_support[connected_handling_time])
 - `Total Interacciones` → 85,907
 - `CSAT Promedio` → 4.24
 - `% Satisfechos (CSAT >= 4)` → 82.5%
-- `Tiempo Gestion Promedio (seg)` → 462
+- `% Insatisfechos (CSAT <= 2)` → 14.6%
 
 **Visuales:**
 - Barras horizontales: `CSAT Promedio` por `channel_name` (Email queda visiblemente por debajo)
